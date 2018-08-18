@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+
+usage() {
+    echo "Usage: $0 [OPTIONS] OXYGEN_XPATH_STRING"
+    cat <<EOF
+
+Options:
+        -n        Don't copy the path to the pasteboard
+        -q        Don't print anything
+        -p PREFIX Add the given namespace prefix
+EOF
+}
+
+while getopts "hnqp:" opt; do
+  case $opt in
+    h)
+      usage
+      exit 1
+      ;;
+    n)
+      NOCOPY=true
+      ;;
+    q)
+      NOPRINT=true
+      ;;
+    p)
+      PREFIX=$OPTARG
+      ;;
+    \?)
+      echo "ERROR Invalid option: -$OPTARG" >&2
+      echo ""
+      usage
+      exit 1
+      ;;
+  esac
+done
+
+shift $((OPTIND-1))
+
+val=`echo "$1" | sed 's/\[[0-9][0-9]*\]//g'` 
+if [[ ${PREFIX} ]]
+then
+	val=`sed "s/\(\/\/*\)\([A-Za-z]\)/\1${PREFIX}:\2/g" <<< "${val}"`
+fi
+
+if [[ -z "${NOCOPY}" ]]
+then
+	echo -n "${val}" | pbcopy
+fi
+
+if [[ -z "${NOPRINT}" ]]
+then
+	echo "${val}"
+fi
+
+
+# 
+# ARGV.each do |s|
+#   puts s.gsub /\[\d+\]/, ''
+# end

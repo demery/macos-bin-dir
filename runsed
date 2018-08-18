@@ -1,0 +1,30 @@
+#! /bin/sh
+
+for x
+do
+   echo -e "editing $x: \c"
+   if test "$x" = sedscr; then
+      echo "not editing sedscript!" 
+   elif test -s $x; then 
+       tmpfile=/tmp/`basename $x`$$
+      sed -f sedscr $x > $tmpfile
+      if test -s $tmpfile
+      then 
+         if cmp -s $x $tmpfile
+         then
+            echo -e "file not changed: \c"
+         else
+            mv $x $x.bak  # save original, just in case
+            cp $tmpfile $x
+         fi
+         echo "done"
+      else 
+         echo -e "Sed produced an empty file\c"
+         echo " - check your sedscript."
+      fi
+      rm -f $tmpfile
+   else
+      echo "original file is empty."
+   fi
+done
+echo "all done"

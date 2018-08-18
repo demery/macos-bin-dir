@@ -1,0 +1,10 @@
+#!/bin/sh
+
+dir=${1:-.}
+
+find $dir -name .svn -prune -o \
+        -name CVS -prune -o \
+        -name .git -prune -o \
+        -name .hg -prune -o \
+        -type d -print
+

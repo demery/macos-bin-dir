@@ -1,0 +1,15 @@
+#!/bin/sh
+#< Convert a decimal number to hex (or vice versa - hard link)
+# KW 20/10/04
+
+if [ "$#" -ne "1" ]; then
+    echo "Usage: $(basename $0) value" && exit 1
+fi
+
+if [ "$(basename $0)" = "dec2hex" ]; then
+    echo "obase=16;ibase=10; ${1}" | bc
+elif [ "$(basename $0)" = "hex2dec" ]; then
+    echo "obase=10;ibase=16; ${1}" | bc
+fi
+
+exit 0

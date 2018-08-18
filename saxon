@@ -1,0 +1,6 @@
+#!/bin/sh
+
+LIB_DIR=/Users/doug/dev/Java/saxonb9-1-0-2j
+CLASSPATH=$CLASSPATH:$LIB_DIR/saxon9.jar
+
+java -cp $CLASSPATH net.sf.saxon.Transform $*

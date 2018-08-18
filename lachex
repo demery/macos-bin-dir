@@ -1,0 +1,100 @@
+#!/bin/sh
+
+# VARIABLES
+CMD=`basename $0`
+LDR=[$CMD]
+# we use this convention
+INPUTFILES="inp*"
+
+# FUNCTIONS
+function usage {
+    echo "$LDR usage: $CMD texfile [outdir]" >&2
+}
+
+# INITIALIZATION
+# test argument
+if [ "X" =  "X${1}" ]; then
+    usage
+    exit 1
+fi
+
+# get the output dir
+OUTDIR=${2:-'/tmp'}
+# test it
+if [ ! -d "$OUTDIR" ]; then
+    echo "$LDR \"$2\" is not a valid output directory"
+    usage
+    exit 1
+fi
+
+# get the names of the tex and dvi files
+BASE=`echo "$1" | sed -e 's!\.tex$!!'`
+TEXFILE=${BASE}.tex
+DVIFILE=${BASE}.dvi
+SOURCEDIR=`dirname $TEXFILE`
+
+if [ ! -f $TEXFILE ]; then
+    echo "$LDR found no file named $TEXFILE" >&2
+    usage
+    exit 1
+fi
+
+
+# LATEX THE TEX FILE
+echo "$LDR processing $TEXFILE"
+# copy the .tex file to the outdir
+
+cp $TEXFILE $OUTDIR
+# copy inputfiles, if there are any
+if ls $SOURCEDIR/$INPUTFILES >/dev/null 2>&1; then
+    cp $SOURCEDIR/$INPUTFILES $OUTDIR
+fi
+TEXFILE=`basename $TEXFILE`
+DVIFILE=`basename $DVIFILE`
+cd $OUTDIR
+
+ITERATION=0
+while [ $ITERATION -lt 3 ]; do
+
+    LOUT=`/usr/bin/latex -interaction=nonstopmode $TEXFILE`
+    STAT=$?
+
+
+    if [ -n "$LOUT" ]; then
+        echo $LDR
+        while read line
+          do
+          echo "$LDR latex - $line"
+        done <<EOF
+$LOUT
+EOF
+        echo $LDR
+    fi
+
+    if [ $STAT != 0 ]; then
+        echo "$LDR error processing $TEXFILE"
+        exit 1
+    fi
+    ITERATION=`expr $ITERATION + 1`
+done
+
+# VIEW THE DVI FILE
+echo "$LDR viewing $DVIFILE"
+DVIOUT=/tmp/dviout$$
+/usr/bin/xdvi $OUTDIR/$DVIFILE >$DVIOUT 2>&1 &
+
+if [ -s $DVIOUT ]; then
+    echo $LDR
+    while read line in `cat $DVIOUT`
+    do
+      echo "$LDR xdvi - $line"
+    done
+    echo $LDR
+fi
+
+if [ -f $DVIOUT ]; then
+    rm $DVIOUT
+fi
+
+# DONE
+echo "$LDR done"

@@ -1,0 +1,17 @@
+#!/bin/sh
+
+cmd=`basename $0`
+ldr=[$cmd]
+
+for x
+do
+  echo $x
+  if file $x | grep image\ data >/dev/null 2>&1; then
+      sizes=`identify -verbose $x | grep '^ *Page  *geometry'`
+      sizes=`echo $sizes | sed 's/^[^:]*: *//' | sed 's/\+.*$//'`
+      echo "$sizes" | awk -F"x" '{ print "       Width:  " $1 }'
+      echo "$sizes" | awk -F"x" '{ print "       Height: " $2 }'
+  else
+      echo "       Not an image file." 
+  fi
+done

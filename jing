@@ -1,0 +1,5 @@
+#!/bin/sh
+
+JING_JAR=~/dev/Java/jing/bin/jing.jar
+
+java -jar $JING_JAR "$@"

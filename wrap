@@ -1,0 +1,8 @@
+#!/bin/sh
+
+# pipe args through fmt and copy to the pasteboard; print the 
+# formatted output to the screen so the nice people can see it
+
+output=`echo "$@" | fmt` 
+echo "$output" | pbcopy #
+echo "$output"

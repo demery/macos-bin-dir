@@ -1,0 +1,10 @@
+#! /bin/sh
+
+leader=[`basename $0`];
+
+for x
+do
+  echo "File: ${x}:"
+  echo "================================================================="
+  sed -f sedscr $x
+done

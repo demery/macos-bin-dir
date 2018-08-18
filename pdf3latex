@@ -1,0 +1,23 @@
+#!/bin/sh
+
+file=$1
+
+infile=`basename $file`
+source_dir=`dirname $file`
+cd $source_dir
+source_dir=`pwd`
+uninflect=`echo "$infile" | sed 's!tex$!!'`
+graphics=`grep includegraphics $file | sed 's!} *$!!' | sed 's!.*{!!'`
+
+cp $file /tmp/$infile
+cp $graphics /tmp/
+
+cd /tmp
+pdflatex $infile && pdflatex $infile && pdflatex $infile
+
+if [ $? = 0 ]; then
+   cp ${uninflect}pdf $source_dir
+fi
+
+rm ${uninflect}*
+rm $graphics
