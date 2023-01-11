@@ -1,6 +1,0 @@
-#!/bin/sh
-
-LIB_DIR=/Users/doug/dev/Java/trang
-CLASSPATH=$CLASSPATH:$LIB_DIR/trang.jar
-
-java -cp $CLASSPATH -jar $LIB_DIR/trang.jar "$@"

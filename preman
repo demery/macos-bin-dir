@@ -1,3 +1,0 @@
-#!/bin/sh
-
-man -t $1 | ps2pdf - - | open -f -a Preview
