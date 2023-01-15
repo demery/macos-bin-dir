@@ -3,14 +3,26 @@
 require 'csv'
 require 'optionparser'
 
-options = {
-}
+options = { }
+
 parser = OptionParser.new do |opts|
 
   opts.banner = <<EOF
 Usage: #{File.basename __FILE__} [options] CSV CSV [...]
 
-Concatenate CSVs.
+Concatenate two or more CSVs. CSVs must have headers, but the headers don't
+have to match. Headers of output CSV will a union of unique input CSV headers.
+Header uniqueness is case sensitve.
+
+NB: Not tested for empty headers:
+
+    name,address,,city,state
+
+Or for non-unique headers in the same CSV; e.g.,
+
+    name,address,city,state,name
+
+NA
 
 EOF
 
@@ -54,7 +66,6 @@ csvs = ARGV.dup
 # get the unique headers
 header = csvs.flat_map { |csv| CSV.readlines(csv).first }.uniq
 
-
 csv_io = StringIO.new
 
 CSV csv_io, headers: true do |csv|
@@ -67,9 +78,6 @@ CSV csv_io, headers: true do |csv|
 end
 
 csv_io.rewind
-# csv_io.each_line do |line|
-#   puts line
-# end
 
 lines = csv_io.readlines
 head = lines.shift
