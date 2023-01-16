@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+usage(){
+	echo "Usage: $(basename $0) ISSUE_NUMBER 'ISSUE DESCRIPTON'"
+	echo
+	echo "Output a feature branch name like 'feature/12-add-xml-handling'"
+	echo
+}
+
+if [[ $# -ne 2 ]]; then
+	echo "Please provide an issue number and quoted issue descripton"
+	echo
+	usage
+	exit 1
+fi
+
+number=$1
+description=$2
+
+if [[ ${number} =~ ^[0-9][0-9]*$ ]]; then
+	:
+else
+	echo "Expected digits for issue number; got ${number}"
+	usage
+	exit 1
+fi
+
+fixed_desc=$(sed 's/[^A-Za-z0-9_-][^A-Za-z0-9_-]*/-/g' <<< "${description}")
+
+echo "feature/${number}-${fixed_desc}"
+
+if which pbcopy >/dev/null ; then
+	echo "feature/${number}-${fixed_desc}" | pbcopy
+
+	echo "(Branch name copied to clipboard)" >&2
+fi
