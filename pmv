@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+HELP=`cat<<-EOF
+
+Pattern renaming for one or more files. By default no action is taken,
+use the -m or -c flags to move or copy the file to the new name.  The
+script will not clobber existing files.
+
+
+EOF`
+
+### TEMPFILES
+# From:
+#   http://stackoverflow.com/questions/430078/shell-script-templates
+# create a default tmp file name
+tmp=${TMPDIR:-/tmp}/prog.$$
+# delete any existing temp files
+trap "rm -f $tmp.?; exit 1" 1 2 3 13 15
+# then do
+#   ...real work that creates temp files $tmp.1, $tmp.2, ...
+
+# FUNCTIONS
+
+#### USAGE AND ERRORS
+cmd=`basename $0 .sh`
+
+usage() {
+   echo "Usage: $cmd [options] FROM_PATTERN TO_PATTERN FILE[...]"
+   echo ""
+   echo "OPTIONS"
+   echo ""
+   echo "   -h             Display help message"
+   echo "   -m             Rename files based on pattern"
+   echo "   -c             Copy files to new ones based on pattern"
+   echo ""
+}
+
+### OPTIONS
+while getopts ":hmc" opt; do
+    case $opt in
+        h)
+            usage
+            echo "$HELP"
+            exit 0
+            ;;
+        m)
+            MOVE=true
+            ;;
+        c)
+            COPY=true
+            ;;
+        \?)
+            echo "ERROR Invalid option: -$OPTARG" >&2
+            echo ""
+            usage
+            exit 1
+            ;;
+    esac
+done
+
+shift $((OPTIND-1))
+
+### ARGS
+from_pattern="$1"
+shift
+to_pattern="$1"
+shift
+
+# echo "From: $from_pattern"
+# echo "To: $to_pattern"
+files=$@
+
+### THESCRIPT
+
+for x in $files
+do
+    new_name=${x/$from_pattern/$to_pattern}
+    if [ "$new_name" = "$x" ]; then
+        echo "[$cmd] WARNING: file name unchanged; skipping $x"
+    elif [ -f "$new_name" ]; then
+        echo "[$cmd] WARNING: file already exists; skipping $new_name"
+    else
+        if [ "$COPY" = true ]; then
+            cp -v "$x" "$new_name"
+        elif [ "$MOVE" = true ]; then
+            mv -v "$x" "$new_name"
+        else
+            echo "[$cmd] INFO: Would rename '$x' -> '$new_name'"
+        fi
+    fi
+done
+
+### EXIT
+# http://stackoverflow.com/questions/430078/shell-script-templates
+rm -f $tmp.?
+trap 0
+exit 0
